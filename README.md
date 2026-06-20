@@ -85,61 +85,61 @@ csharp-zero-to-hero/
 │   ├── 07.type-casting.md
 │   ├── 08.null-handling.md
 │   ├── 09.enums.md
-│   ├── 10.value-vs-reference-types.md     # NEW — core mental model
-│   └── 11.pattern-matching-tuples.md      # NEW — switch expressions, tuples
+│   ├── 10.value-vs-reference-types.md     
+│   └── 11.pattern-matching-tuples.md      
 │
 ├── 02-OOP/
 │   ├── 01.classes-objects.md
 │   ├── 02.constructors.md
-│   ├── 03.properties-access-modifiers.md  # NEW (if not in encapsulation)
+│   ├── 03.properties-access-modifiers.md  
 │   ├── 04.inheritance.md
 │   ├── 05.polymorphism.md
 │   ├── 06.interfaces.md
 │   ├── 07.abstract-classes.md
 │   ├── 08.encapsulation.md
 │   ├── 09.static-vs-instance.md
-│   ├── 10.structs.md                      # NEW — value types
-│   └── 11.records.md                      # NEW — modern data types
+│   ├── 10.structs.md                      
+│   └── 11.records.md                      
 │
 ├── 03-Advanced/
-│   ├── 01.collections-deep-dive.md        # NEW — List, Dictionary, HashSet, Queue, Stack
-│   ├── 02.ienumerable-iterators-yield.md  # NEW
+│   ├── 01.collections-deep-dive.md        
+│   ├── 02.ienumerable-iterators-yield.md  
 │   ├── 03.delegates-events.md
-│   ├── 04.lambdas-func-action.md          # NEW
+│   ├── 04.lambdas-func-action.md         
 │   ├── 05.generics.md
 │   ├── 06.linq.md
-│   ├── 07.extension-methods.md            # NEW
-│   ├── 08.async-await-tasks.md            # NEW — high priority
-│   ├── 09.threading-concurrency.md        # NEW
-│   ├── 10.idisposable-using.md            # NEW — resource management
-│   ├── 11.reflection-attributes.md        # NEW
-│   └── 12.memory-garbage-collection.md    # NEW
+│   ├── 07.extension-methods.md            
+│   ├── 08.async-await-tasks.md            
+│   ├── 09.threading-concurrency.md        
+│   ├── 10.idisposable-using.md           
+│   ├── 11.reflection-attributes.md        
+│   └── 12.memory-garbage-collection.md    
 │
-├── 04-Practical/                          # NEW section
+├── 04-Practical/                         
 │   ├── 01.file-io.md
-│   ├── 02.working-with-json.md            # System.Text.Json
+│   ├── 02.working-with-json.md            
 │   ├── 03.regular-expressions.md
 │   ├── 04.nuget-packages.md
 │   └── 05.debugging.md
 │
-├── 05-Professional/                       # NEW section
-│   ├── 01.unit-testing.md                 # xUnit / NUnit
+├── 05-Professional/                       
+│   ├── 01.unit-testing.md                 
 │   ├── 02.solid-principles.md
-│   ├── 03.design-patterns.md              # singleton, factory, repository, strategy
+│   ├── 03.design-patterns.md              
 │   ├── 04.dependency-injection.md
 │   └── 05.coding-conventions.md
 │
-├── 06-Real-World/                         # NEW section
+├── 06-Real-World/                         
 │   ├── 01.aspnet-core-web-api.md
 │   ├── 02.entity-framework-core.md
 │   └── 03.where-to-go-next.md
 │
-├── Projects/                              # NEW — the confidence builder
-│   ├── 01-calculator/                     # after Basics
-│   ├── 02-todo-cli/                       # after Basics/Collections
-│   ├── 03-bank-account-system/            # after OOP
-│   ├── 04-inventory-manager/              # after Advanced
-│   └── 05-capstone-web-api/               # after Real-World
+├── Projects/                              
+│   ├── 01-calculator/                     
+│   ├── 02-todo-cli/                       
+│   ├── 03-bank-account-system/           
+│   ├── 04-inventory-manager/              
+│   └── 05-capstone-web-api/               
 │
 ├── Interview-QA/
 │   └── interview-questions.md
