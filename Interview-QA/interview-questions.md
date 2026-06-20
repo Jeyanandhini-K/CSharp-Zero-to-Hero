@@ -1,514 +1,1156 @@
-# Interview Questions and Answers
+# 🎤 C# Interview Questions & Answers
 
-Complete guide to crack C# interviews. 100+ questions from basics to advanced.
+> Every question comes with a **real code example**. Read it, type it, understand it — don't memorize it.
 
-BASICS
+---
 
-Q: What is C#?
-A: C# is a modern, object-oriented programming language created by Microsoft. It runs on .NET framework.
+## 📦 SECTION 1 — C# Basics
 
-Q: What are value types and reference types?
-A: Value types (int, double, bool) are stored on stack and copied by value. Reference types (string, object, array) are stored on heap and copied by reference.
+---
 
-Q: What's the difference between == and .Equals()?
-A: == checks reference equality. .Equals() checks value equality. For strings, both work the same.
+**Q1: What is the difference between `int` and `int?`?**
 
-Q: What is string immutability?
-A: Strings cannot be changed after creation. Any modification creates a new string. This is why StringBuilder is faster for multiple concatenations.
+`int` cannot be null. `int?` (nullable int) can hold null.
 
-Q: What's the difference between array and List?
-A: Array has fixed size, faster access. List is dynamic (grows/shrinks), more flexible.
+```csharp
+int age = 25;
+age = null;    // ❌ compile error
 
-Q: What is var keyword?
-A: Let compiler figure out type from assigned value. Still strongly typed, just cleaner syntax.
+int? age = 25;
+age = null;    // ✅ allowed
+Console.WriteLine(age.HasValue);   // False
+Console.WriteLine(age ?? 0);       // 0 — default if null
+```
 
-Q: Difference between const and readonly?
-A: const is set at compile-time and never changes. readonly is set at runtime (usually in constructor) and cannot change after.
+---
 
-Q: What are nullable types?
-A: Value types cannot be null by default. Use int?, double?, etc. to allow null values.
+**Q2: What is the difference between `==` and `.Equals()`?**
 
-Q: What is type casting?
-A: Converting one type to another. Implicit (safe) or explicit (risky). int x = (int)3.14; loses decimal.
+`==` compares references for objects. `.Equals()` compares values.
 
-Q: How to safely parse string to int?
-A: Use TryParse: if (int.TryParse(text, out int result)) { // Use result }
+```csharp
+string a = new string("hello".ToCharArray());
+string b = new string("hello".ToCharArray());
 
-CONTROL FLOW
+Console.WriteLine(a == b);        // True  — string overrides ==
+Console.WriteLine(a.Equals(b));   // True
 
-Q: What's the difference between while and do-while?
-A: while checks condition first, might not run. do-while runs at least once before checking.
+object x = 42;
+object y = 42;
+Console.WriteLine(x == y);        // False — different references!
+Console.WriteLine(x.Equals(y));   // True  — same value
+```
 
-Q: When use switch instead of if/else?
-A: When checking one variable against many specific values. Switch is cleaner.
+---
 
-Q: What does break do in a loop?
-A: Exits the loop immediately.
+**Q3: What is `var` and when should you use it?**
 
-Q: What does continue do?
-A: Skips current iteration, goes to next.
+`var` lets the compiler infer the type. Use it when the type is obvious.
 
-Q: What's an infinite loop?
-A: Loop that never ends. Avoid by ensuring condition eventually becomes false.
+```csharp
+// ✅ Obvious — use var
+var list    = new List<string>();
+var service = new OrderService();
+var name    = "Asha";
 
-Q: Why use foreach instead of for?
-A: foreach is simpler when you don't need index. Cannot modify collection while iterating.
+// ❌ Not obvious — use explicit type
+var result = GetData();   // what type is result? 😕
 
-OPERATORS AND STRINGS
+// Rule: if you have to think about the type — write it out
+IEnumerable<Order> orders = GetOrders();   // ✅ clear
+```
 
-Q: What's difference between / and % operators?
-A: / divides and returns quotient. % returns remainder.
+---
 
-Q: When use string interpolation?
-A: Always. $"Hello, {name}" is cleaner than concatenation.
+**Q4: What is string interpolation?**
 
-Q: What does Substring do?
-A: Extract part of string. Substring(0, 3) gets first 3 characters.
+Embed variables directly in strings using `$"..."`.
 
-Q: How check if string contains word?
-A: Use .Contains("word") method.
+```csharp
+string name = "Asha";
+int age = 30;
 
-Q: When use ternary operator?
-A: For simple one-line if/else assignments. condition ? yes : no
+// ❌ Old way
+string msg = "Hello " + name + ", you are " + age + " years old.";
 
-Q: Why use decimal for money?
-A: Prevents floating-point rounding errors. 0.1 + 0.2 = 0.3 in decimal, not 0.30000000000000004.
+// ✅ String interpolation
+string msg = $"Hello {name}, you are {age} years old.";
 
-Q: What's string concatenation?
-A: Combining strings. String concatenation creates new strings (slow for many). Use StringBuilder for many concatenations.
+// Expressions work too
+Console.WriteLine($"Next year: {age + 1}");        // Next year: 31
+Console.WriteLine($"Upper: {name.ToUpper()}");     // Upper: ASHA
+Console.WriteLine($"Pi: {Math.PI:F2}");            // Pi: 3.14
+```
 
-METHODS
+---
 
-Q: What's difference between void and return?
-A: void means no return value. return gives value back to caller.
+**Q5: What is the difference between `const` and `readonly`?**
 
-Q: Can you have two methods with same name?
-A: Yes, with method overloading. Different parameters required.
+`const` is set at compile time. `readonly` can be set at runtime (in constructor).
 
-Q: What are default parameters?
-A: Optional parameter values. Caller can skip if default is OK.
+```csharp
+public class Config
+{
+    public const    int    MaxRetries   = 3;               // compile-time constant
+    public readonly string ConnectionString;               // set once at runtime
 
-Q: What does params keyword do?
-A: Accept variable number of arguments of same type.
+    public Config(string connStr)
+    {
+        ConnectionString = connStr;   // ✅ allowed in constructor
+    }
+}
 
-Q: When use ref or out?
-A: ref to modify original variable. out to return multiple values.
+// const — same for every instance, every time
+// readonly — can differ per instance based on constructor args
+```
 
-Q: What's return early pattern?
-A: Exit method early instead of nesting if-else. Cleaner code.
+---
 
-Q: How validate method inputs?
-A: Check parameters at start. Throw exceptions if invalid.
+**Q6: What is the difference between `break`, `continue`, and `return`?**
 
-Q: Method naming conventions?
-A: PascalCase: CalculateTotal(), GetUserName(). Start with verb.
+```csharp
+// break — exits the loop entirely
+for (int i = 0; i < 10; i++)
+{
+    if (i == 5) break;
+    Console.Write(i + " ");   // 0 1 2 3 4
+}
 
-ARRAYS AND COLLECTIONS
+// continue — skips this iteration, goes to next
+for (int i = 0; i < 10; i++)
+{
+    if (i % 2 == 0) continue;
+    Console.Write(i + " ");   // 1 3 5 7 9
+}
 
-Q: Difference between array and list?
-A: Array = fixed size, faster. List = dynamic, flexible.
+// return — exits the entire method
+int FindFirst(int[] arr, int target)
+{
+    foreach (int n in arr)
+        if (n == target) return n;   // exits method immediately
+    return -1;
+}
+```
 
-Q: How access 3rd element of array?
-A: array[2] (0-indexed: 0, 1, 2...)
+---
 
-Q: When use Dictionary instead of List?
-A: When you need key-value lookups. Like student ID -> student name.
+**Q7: What are access modifiers in C#?**
 
-Q: Difference between Queue and Stack?
-A: Queue = FIFO (first in, first out). Stack = LIFO (last in, first out).
+Control who can access a class member.
 
-Q: How get length of List?
-A: .Count property. Arrays use .Length.
+```csharp
+public class BankAccount
+{
+    public    string Owner   = "Asha";  // anyone
+    private   decimal _balance = 0;     // this class only
+    protected int _pin = 1234;          // this class + subclasses
+    internal  string Branch = "Chennai";// same assembly only
 
-Q: Real-world use of Queue?
-A: Print queue, customer service queue, task scheduling.
+    public decimal GetBalance() => _balance;   // expose private via method ✅
+}
 
-Q: Real-world use of Stack?
-A: Undo/Redo functionality, browser back button, function call stack.
+var acc = new BankAccount();
+Console.WriteLine(acc.Owner);      // ✅
+Console.WriteLine(acc._balance);   // ❌ compile error — private!
+```
 
-Q: What's 2D array?
-A: Array with rows and columns. Matrix. int[,] grid = new int[3,3];
+---
+
+**Q8: What is the difference between `string` and `StringBuilder`?**
+
+`string` is immutable — each change creates a new object. `StringBuilder` mutates in place.
+
+```csharp
+// ❌ Slow — creates a new string object every iteration
+string result = "";
+for (int i = 0; i < 10000; i++)
+    result += i;   // 10000 allocations!
+
+// ✅ Fast — one object, mutated in place
+var sb = new StringBuilder();
+for (int i = 0; i < 10000; i++)
+    sb.Append(i);
+string result = sb.ToString();
+
+// Use StringBuilder when concatenating in loops or building large strings
+```
+
+---
+
+**Q9: What is type casting in C#?**
+
+Converting a value from one type to another.
+
+```csharp
+// Implicit — safe, no data loss
+int x = 10;
+double d = x;   // int → double ✅ automatic
+
+// Explicit — might lose data
+double pi = 3.14;
+int approx = (int)pi;   // 3 — decimal part lost!
+
+// Safe casting with 'as' and 'is'
+object obj = "hello";
+
+string? s = obj as string;   // null if cast fails — no exception
+if (s != null) Console.WriteLine(s.Length);
+
+if (obj is string str)       // check and cast in one step ✅
+    Console.WriteLine(str.ToUpper());
+
+// Convert
+string numStr = "42";
+int num = int.Parse(numStr);         // throws if invalid
+int num = Convert.ToInt32(numStr);   // throws if invalid
+bool ok = int.TryParse(numStr, out int parsed);   // ✅ safe — no throw
+```
+
+---
+
+**Q10: What is the difference between `Array` and `List<T>`?**
+
+```csharp
+// Array — fixed size, set at creation
+int[] arr = new int[5];   // always 5 elements
+arr[0] = 10;
+// arr.Add(6);   ❌ no Add method
+
+// List<T> — dynamic size, grows as needed
+var list = new List<int>();
+list.Add(10);
+list.Add(20);
+list.Add(30);
+list.Remove(20);
+Console.WriteLine(list.Count);   // 2
+
+// When to use what:
+// Array — size is known and fixed (e.g. days of week, RGB channels)
+// List   — size changes at runtime (e.g. search results, cart items)
+```
+
+---
+
+## 🏛️ SECTION 2 — Object-Oriented Programming
+
+---
+
+**Q11: What are the 4 pillars of OOP?**
+
+```csharp
+// 1️⃣ ENCAPSULATION — hide data, expose behaviour
+public class BankAccount
+{
+    private decimal _balance;
+    public void Deposit(decimal amount) { if (amount > 0) _balance += amount; }
+    public decimal GetBalance() => _balance;
+}
+
+// 2️⃣ INHERITANCE — reuse via parent class
+public class Animal   { public void Breathe() => Console.WriteLine("Breathing"); }
+public class Dog : Animal { public void Bark() => Console.WriteLine("Woof!"); }
+var dog = new Dog();
+dog.Breathe();   // inherited ✅
+dog.Bark();
+
+// 3️⃣ POLYMORPHISM — same method, different behaviour
+public abstract class Shape { public abstract double Area(); }
+public class Circle    : Shape { public override double Area() => Math.PI * 5 * 5; }
+public class Rectangle : Shape { public override double Area() => 4 * 6; }
+Shape s = new Circle();
+Console.WriteLine(s.Area());   // Circle's Area, not Rectangle's
+
+// 4️⃣ ABSTRACTION — hide complexity, show only what's needed
+public interface IPayment { Task ProcessAsync(decimal amount); }
+public class StripePayment : IPayment { public Task ProcessAsync(decimal amount) { /* Stripe logic */ return Task.CompletedTask; } }
+// Caller just uses IPayment — doesn't know it's Stripe
+```
+
+---
+
+**Q12: What is the difference between `abstract class` and `interface`?**
+
+```csharp
+// Abstract class — partial implementation, single inheritance
+public abstract class Vehicle
+{
+    public string Brand { get; set; } = "";   // shared state ✅
+    public void StartEngine() => Console.WriteLine("Vroom!");   // shared behaviour ✅
+    public abstract void Drive();   // must be implemented by subclass
+}
+
+// Interface — pure contract, multiple implementation
+public interface IDriveable  { void Drive(); }
+public interface IChargeable { void Charge(); }
+
+// Class can only inherit ONE abstract class
+// Class can implement MANY interfaces ✅
+public class ElectricCar : Vehicle, IDriveable, IChargeable
+{
+    public override void Drive()  => Console.WriteLine("Driving silently");
+    public void Charge()          => Console.WriteLine("Charging...");
+}
+
+// Use abstract class: shared code + is-a relationship
+// Use interface: capability contract + multiple types that can do the same thing
+```
+
+---
+
+**Q13: What is method overloading vs overriding?**
 
-EXCEPTION HANDLING
+```csharp
+// OVERLOADING — same name, different parameters (compile-time)
+public class Calculator
+{
+    public int Add(int a, int b)             => a + b;
+    public double Add(double a, double b)    => a + b;
+    public int Add(int a, int b, int c)      => a + b + c;
+}
+var c = new Calculator();
+c.Add(1, 2);        // int version
+c.Add(1.5, 2.5);    // double version
+c.Add(1, 2, 3);     // three-param version
+
+// OVERRIDING — same name, same params, subclass replaces parent (runtime)
+public class Animal  { public virtual  void Speak() => Console.WriteLine("..."); }
+public class Dog     { public override void Speak() => Console.WriteLine("Woof!"); }
+public class Cat     { public override void Speak() => Console.WriteLine("Meow!"); }
+
+Animal a = new Dog();
+a.Speak();   // "Woof!" — runtime decides which version to call ✅
+```
+
+---
+
+**Q14: What is the difference between `struct` and `class`?**
+
+```csharp
+// STRUCT — value type (copied on assignment)
+struct Point { public int X; public int Y; }
+
+Point a = new Point { X = 1, Y = 2 };
+Point b = a;     // COPY
+b.X = 99;
+Console.WriteLine(a.X);   // 1 — unchanged ✅
+
+// CLASS — reference type (shared on assignment)
+class PointClass { public int X; public int Y; }
+
+PointClass c = new PointClass { X = 1, Y = 2 };
+PointClass d = c;     // SAME OBJECT
+d.X = 99;
+Console.WriteLine(c.X);   // 99 — changed! ⚠️
 
-Q: What's exception?
-A: Error at runtime that disrupts program flow.
+// struct: small, immutable, value-like (Point, Money, Color)
+// class:  everything else
+```
 
-Q: Difference between try-catch and try-finally?
-A: catch handles exceptions. finally always runs for cleanup.
+---
+
+**Q15: What is a `record` in C#?**
+
+```csharp
+// One line — gets constructor, properties, ToString, Equals for free
+public record Person(string Name, int Age);
+
+var a = new Person("Asha", 30);
+var b = new Person("Asha", 30);
+
+Console.WriteLine(a == b);    // True  — value equality ✅ (class would be False)
+Console.WriteLine(a);         // Person { Name = Asha, Age = 30 }
+
+// with — make a modified copy (original untouched)
+var older = a with { Age = 31 };
+Console.WriteLine(a.Age);     // 30 ✅
+Console.WriteLine(older.Age); // 31 ✅
+
+// Use records for immutable data: API models, DTOs, config
+```
+
+---
+
+**Q16: What is a constructor and what types are there?**
+
+```csharp
+public class Car
+{
+    public string Model;
+    public int    Year;
+
+    // Default constructor
+    public Car() { Model = "Unknown"; Year = 2024; }
 
-Q: When throw custom exception?
-A: When validating business logic. Age, balance, email format, etc.
+    // Parameterized constructor
+    public Car(string model, int year) { Model = model; Year = year; }
 
-Q: What happens if no exception in try block?
-A: catch is skipped, finally still runs.
+    // Copy constructor
+    public Car(Car other) { Model = other.Model; Year = other.Year; }
 
-Q: Can catch multiple exception types?
-A: Yes, use multiple catch blocks. Specific first, generic last.
+    // Static constructor — runs once when class is first used
+    static Car() { Console.WriteLine("Car class initialized"); }
+}
 
-Q: What's best practice for exception handling?
-A: Catch specific exceptions, use meaningful messages, log errors, don't silently ignore.
+var c1 = new Car();                    // default
+var c2 = new Car("Tesla", 2024);      // parameterized
+var c3 = new Car(c2);                  // copy
+```
 
-Q: Difference between IndexOutOfRangeException and NullReferenceException?
-A: Index = accessing invalid array index. Null = accessing property of null.
+---
 
-Q: How avoid NullReferenceException?
-A: Check for null before using. if (obj != null) { obj.Property; }
+**Q17: What is a `property` vs a `field`?**
 
-Q: What's purpose of finally block?
-A: Always runs for cleanup - closing files, releasing resources.
+```csharp
+public class Person
+{
+    // Field — raw variable (usually private)
+    private string _name;
 
-OOP - CLASSES AND OBJECTS
+    // Property — controlled access with get/set
+    public string Name
+    {
+        get => _name;
+        set
+        {
+            if (string.IsNullOrEmpty(value))
+                throw new ArgumentException("Name cannot be empty");
+            _name = value;
+        }
+    }
 
-Q: What's difference between class and object?
-A: Class is blueprint. Object is instance of class.
+    // Auto-property — compiler generates the backing field
+    public int Age { get; set; }
 
-Q: Why encapsulation?
-A: Hide implementation details. Control access. Prevent misuse.
+    // Init-only — set only at construction (immutable after)
+    public string Email { get; init; } = "";
 
-Q: What's this keyword?
-A: Reference to current object instance.
+    // Computed — no backing field, calculated on the fly
+    public string Greeting => $"Hello, {Name}!";
+}
+```
 
-Q: Static vs instance member?
-A: Static = shared by class. Instance = unique per object.
+---
 
-Q: When use properties instead of fields?
-A: Always. Properties provide control and validation.
+## ⚡ SECTION 3 — Advanced C#
 
-Q: Constructor purpose?
-A: Initialize object when created. Set up initial state.
+---
 
-Q: Access modifiers importance?
-A: Control visibility. Hide internals. Prevent misuse.
+**Q18: What is `async`/`await` and how does it work?**
 
-Q: Difference between public and private?
-A: public = accessible anywhere. private = only in class.
+```csharp
+// Without async — blocks the thread while waiting (bad!)
+string data = DownloadData();   // thread frozen for 3 seconds 😢
 
-Q: Can you have multiple constructors?
-A: Yes, constructor overloading. Different parameters.
+// With async — releases the thread while waiting (good!)
+string data = await DownloadDataAsync();   // thread free to do other work ✅
 
-Q: Auto-property vs full property?
-A: Auto-property { get; set; } simpler. Full property allows validation.
+// Real example
+public async Task<string> GetUserAsync(int id)
+{
+    using HttpClient client = new HttpClient();
+    string json = await client.GetStringAsync($"https://api.example.com/users/{id}");
+    return json;
+}
 
-OOP - INHERITANCE AND POLYMORPHISM
+// await does NOT create a new thread — it RELEASES the current one
+// Always return Task or Task<T> — never async void (except event handlers)
+```
 
-Q: Inheritance vs Composition?
-A: Inheritance = IS-A (Dog IS-A Animal). Composition = HAS-A (Car HAS-A Engine).
+---
 
-Q: Virtual vs Abstract?
-A: Virtual = optional override. Abstract = must override.
+**Q19: What is the difference between `Task.WhenAll` and `Task.WhenAny`?**
 
-Q: When use abstract class?
-A: Define common behavior for subclasses. Force implementation.
+```csharp
+Task<string> task1 = GetDataAsync("url1");
+Task<string> task2 = GetDataAsync("url2");
+Task<string> task3 = GetDataAsync("url3");
 
-Q: Polymorphism benefit?
-A: Write flexible, reusable code. Same interface, different implementations.
+// WhenAll — wait for ALL to finish (runs in parallel ✅)
+string[] results = await Task.WhenAll(task1, task2, task3);
+Console.WriteLine(results[0]);   // result of task1
+Console.WriteLine(results[1]);   // result of task2
 
-Q: Multiple inheritance in C#?
-A: No. Use interfaces instead.
+// WhenAny — wait for the FIRST to finish
+Task<string> winner = await Task.WhenAny(task1, task2, task3);
+Console.WriteLine(await winner);   // fastest result
 
-Q: What's base keyword?
-A: Calls parent class method or constructor.
+// Use WhenAll: fetch multiple APIs in parallel
+// Use WhenAny: timeout race, first available wins
+```
 
-Q: Sealed keyword purpose?
-A: Prevent further inheritance. Lock implementation.
+---
+
+**Q20: What is a delegate?**
 
-Q: Can abstract class have implementation?
-A: Yes. Abstract methods must override. Regular methods can have implementation.
+A delegate is a type-safe function pointer — a variable that holds a method.
 
-Q: Constructor chaining?
-A: Pass data to parent constructor using base().
+```csharp
+// Declare a delegate type
+delegate int MathOperation(int a, int b);
 
-Q: Override vs Hiding?
-A: override = polymorphism (virtual). Hiding = new keyword (breaks polymorphism).
+// Methods that match the signature
+int Add(int a, int b) => a + b;
+int Multiply(int a, int b) => a * b;
 
-OOP - INTERFACES AND ABSTRACT
+// Assign and call
+MathOperation op = Add;
+Console.WriteLine(op(3, 4));   // 7
 
-Q: Interface vs Abstract class?
-A: Interface = contract only. Abstract = shared behavior.
+op = Multiply;
+Console.WriteLine(op(3, 4));   // 12
 
-Q: Can interface have implementation?
-A: Yes, since C# 8.0 with default members.
+// Built-in delegate types (no need to declare your own)
+Func<int, int, int> add = (a, b) => a + b;   // returns a value
+Action<string> print = msg => Console.WriteLine(msg);   // returns void
+Predicate<int> isEven = n => n % 2 == 0;   // returns bool
+```
 
-Q: Multiple inheritance?
-A: Cannot with classes. Can with interfaces.
+---
 
-Q: When use interface?
-A: Define contracts, enable DI, provide capabilities.
+**Q21: What is LINQ? Give examples.**
 
-Q: Dependency injection benefit?
-A: Loose coupling, easy testing, flexibility.
+LINQ (Language Integrated Query) lets you query collections using C# syntax.
 
-Q: Interface segregation principle?
-A: Don't force unnecessary methods. Segregate smaller.
+```csharp
+var products = new List<Product>
+{
+    new("Laptop",  999.99m, "Electronics"),
+    new("Phone",   599.99m, "Electronics"),
+    new("Shirt",    29.99m, "Clothing"),
+    new("Headset", 149.99m, "Electronics"),
+};
 
-Q: Explicit interface implementation?
-A: Implement interface method explicitly when names conflict.
+// Filter
+var electronics = products.Where(p => p.Category == "Electronics");
 
-Q: Can interface have fields?
-A: No, only properties.
+// Sort
+var byPrice = products.OrderBy(p => p.Price);
 
-Q: Can interface have constructor?
-A: No.
+// Transform
+var names = products.Select(p => p.Name);
 
-Q: Can interface inherit from interface?
-A: Yes.
+// Aggregate
+decimal total   = products.Sum(p => p.Price);
+decimal average = products.Average(p => p.Price);
+int     count   = products.Count(p => p.Price > 100);
 
-LINQ
-
-Q: What's LINQ?
-A: Language Integrated Query - SQL-like syntax for collections.
-
-Q: Where vs Select?
-A: Where = filter. Select = transform.
-
-Q: First vs FirstOrDefault?
-A: First throws if none. FirstOrDefault returns null.
-
-Q: GroupBy use case?
-A: Group data and aggregate (count, sum, average).
-
-Q: Deferred execution?
-A: LINQ executes when you iterate, not when created.
-
-Q: Method syntax vs Query syntax?
-A: Same thing, different style. Choose preference.
-
-Q: ToList() purpose?
-A: Execute LINQ immediately, convert to List.
-
-Q: Performance?
-A: LINQ slower than loops, but more readable. Optimize if needed.
-
-Q: Distinct use case?
-A: Remove duplicates from collection.
-
-Q: Skip and Take use case?
-A: Pagination - get page N of results.
-
-COMMON MISTAKES
-
-Q: What's NullReferenceException?
-A: Accessing property of null object. Check for null first.
-
-Q: Boxing vs Unboxing?
-A: Boxing = value type to reference (slow). Unboxing = reference to value. Avoid.
-
-Q: String concatenation in loops?
-A: Creates new strings (slow). Use StringBuilder instead.
-
-Q: Modifying collection while iterating?
-A: Causes error. Call ToList() first.
-
-Q: Not closing resources?
-A: Use try-finally or using statement to clean up files, connections.
-
-Q: Using == for string comparison?
-A: Works but use .Equals() for clarity and null safety.
-
-Q: Assuming order of execution?
-A: Don't assume. Deferred execution in LINQ means executed later.
-
-Q: Not validating input?
-A: Always validate parameters in methods. Throw exceptions if invalid.
-
-Q: Catching generic Exception?
-A: Catch specific exceptions first. Generic last.
-
-Q: Ignoring exceptions?
-A: Never silently ignore. Log and handle properly.
-
-DESIGN PATTERNS
-
-Q: Singleton pattern?
-A: Only one instance exists. Common for logger, database connection.
-
-Q: Factory pattern?
-A: Create objects without specifying exact classes. Loose coupling.
-
-Q: Observer pattern?
-A: Notify multiple objects of state changes. Events use this.
-
-Q: Dependency Injection pattern?
-A: Inject dependencies instead of creating. Loose coupling, testable.
-
-Q: Strategy pattern?
-A: Different algorithms, interchangeable. Interfaces enable this.
-
-Q: Adapter pattern?
-A: Make incompatible interfaces work together.
-
-SOLID PRINCIPLES
-
-Q: Single Responsibility?
-A: Class should have one job. Changes to one job shouldn't affect others.
-
-Q: Open/Closed?
-A: Open for extension, closed for modification. Use inheritance, interfaces.
-
-Q: Liskov Substitution?
-A: Derived class can replace base class without breaking.
-
-Q: Interface Segregation?
-A: Don't force unnecessary methods. Segregate into smaller interfaces.
-
-Q: Dependency Inversion?
-A: Depend on abstractions, not concrete implementations.
-
-PERFORMANCE
-
-Q: Why use StringBuilder?
-A: String concatenation creates new strings. StringBuilder is faster for many concatenations.
-
-Q: What's yield keyword?
-A: Deferred execution. Memory efficient for large collections.
-
-Q: When use async/await?
-A: Long-running operations (network, file I/O). Don't block UI thread.
-
-Q: How optimize LINQ?
-A: Filter early (Where before Select). Use appropriate collections. Avoid multiple iterations.
-
-Q: Why avoid boxing?
-A: Performance overhead. int x = 5; object o = x; creates box on heap.
-
-BEST PRACTICES FOR INTERVIEWS
-
-DO:
-- Know SOLID principles - shows design knowledge
-- Explain trade-offs - no perfect solution
-- Ask clarifying questions - shows professionalism
-- Write clean code - proper naming, formatting
-- Test edge cases - null, empty, negative values
-- Use version control - GitHub shows professionalism
-- Comment complex code - shows communication
-- Know when to use what - Arrays vs Lists, etc.
-
-DON'T:
-- Memorize all interview questions - understand concepts
-- Rush to code - think first
-- Ignore edge cases - ask about constraints
-- Write sloppy code - formatting matters
-- Say "I don't know" - say "I don't know, but I would research it"
-- Make assumptions - ask questions
-- Code without comments - explain your thinking
-- Forget about null checks - common bug
-
-FINAL CHECKLIST BEFORE INTERVIEW
-
-Basics:
-✅ Variables, data types (value vs reference)
-✅ Control flow (if/else, loops, switch)
-✅ Operators and strings
-✅ Methods and functions
-✅ Arrays and collections (array, list, dictionary, queue, stack)
-✅ Exception handling (try-catch-finally)
-
-OOP:
-✅ Classes and objects
-✅ Properties and fields
-✅ Constructors and initialization
-✅ Encapsulation
-✅ Inheritance and polymorphism
-✅ Abstract classes
-✅ Interfaces
-✅ Dependency injection
-
-Advanced:
-✅ LINQ (Where, Select, OrderBy, GroupBy, Join)
-✅ Static members
-✅ Deferred execution
-✅ Design patterns (Singleton, Factory, Observer)
-✅ SOLID principles
-
-Practical:
-✅ String handling (immutability, StringBuilder)
-✅ Null checking
-✅ Input validation
-✅ Exception handling best practices
-✅ Performance optimization
-✅ GitHub and version control
-
-Project:
-✅ Have projects on GitHub
-✅ Write clean, readable code
-✅ Add comments explaining complex logic
-✅ Handle edge cases
-✅ Test your code
-
-COMMON INTERVIEW SCENARIOS
-
-Scenario 1: Write a function to validate email
-Answer: Check for @ and . using Contains() method. Consider using Regex.
-
-Scenario 2: Find duplicate numbers in array
-Answer: Use HashSet to track seen numbers. Or use LINQ GroupBy.
-
-Scenario 3: Reverse a string
-Answer: Convert to char array, reverse, convert back. Or use LINQ Reverse().
-
-Scenario 4: Find highest number in array
-Answer: Use LINQ Max() or loop with comparison.
-
-Scenario 5: Merge two sorted arrays
-Answer: Use LINQ Concat().OrderBy() or two pointers approach.
-
-Scenario 6: Design a student management system
-Answer: Create Student class, StudentRepository, StudentService. Use interfaces for loose coupling.
-
-Scenario 7: Implement a simple cache
-Answer: Use Dictionary. Add lock for thread safety if needed.
-
-Scenario 8: Handle exceptions properly
-Answer: Catch specific exceptions, log errors, provide meaningful messages.
-
-FINAL TIPS 🎯
-
-Be confident - You've learned from basics to advanced!
-Practice coding - Use online judges, coding challenges
-Explain your thinking - Talk through your approach
-Ask clarifying questions - Shows you understand the problem
-Write clean code - Formatting and naming matter
-Test edge cases - null, empty, negative, large numbers
-Be honest - Say "I don't know" instead of guessing
-Follow up - Ask if there's anything to improve
-Show enthusiasm - Demonstrate genuine interest
-Stay calm - Interviews are conversations, not interrogations
-
-YOU'RE READY! 🚀
-
-You've covered:
-- Basics (Variables to Exception Handling)
-- OOP (Classes to Interfaces)
-- Advanced (LINQ and beyond)
-- Best practices and interview preparation
-
-With your GitHub portfolio and understanding of these concepts, you're well-prepared to ace C# developer interviews!
-
-Remember: Practice, consistency, and continuous learning are key to success.
-
-Good luck! 💪
-
-NEXT STEPS
-
-1. Keep updating your GitHub repo with projects
-2. Add more real-world projects (Console apps, Web APIs)
-3. Practice coding challenges on LeetCode, HackerRank
-4. Deep dive into ASP.NET Core if targeting web roles
-5. Learn Entity Framework for database work
-6. Practice system design for senior roles
-7. Keep learning and building!
-
-YOUR JOURNEY CONTINUES...
-
-You're not done learning. Keep growing:
-- Advanced C# features
-- ASP.NET Core and web development
-- Database design and SQL
-- Cloud services (Azure, AWS)
-- Microservices architecture
-- Testing and CI/CD
-
-This foundation prepares you for everything else.
-
-YOU GOT THIS! 🎉
+// Chain them
+var result = products
+    .Where(p => p.Category == "Electronics")
+    .OrderByDescending(p => p.Price)
+    .Select(p => $"{p.Name}: ₹{p.Price}")
+    .ToList();
+
+result.ForEach(Console.WriteLine);
+// Laptop: ₹999.99
+// Phone: ₹599.99
+// Headset: ₹149.99
+```
+
+---
+
+**Q22: What are generics?**
+
+Write code that works with any type — type-safe without duplicating logic.
+
+```csharp
+// Without generics — one method per type 😩
+int    MaxInt(int a, int b)       => a > b ? a : b;
+double MaxDouble(double a, double b) => a > b ? a : b;
+
+// With generics — one method for all types ✅
+T Max<T>(T a, T b) where T : IComparable<T>
+    => a.CompareTo(b) > 0 ? a : b;
+
+Console.WriteLine(Max(3, 7));        // 7
+Console.WriteLine(Max(3.14, 2.71));  // 3.14
+Console.WriteLine(Max("apple", "banana")); // banana
+
+// Generic class
+public class Stack<T>
+{
+    private List<T> _items = new();
+    public void Push(T item) => _items.Add(item);
+    public T Pop() { var item = _items[^1]; _items.RemoveAt(_items.Count - 1); return item; }
+    public int Count => _items.Count;
+}
+
+var stack = new Stack<int>();
+stack.Push(1); stack.Push(2); stack.Push(3);
+Console.WriteLine(stack.Pop());   // 3
+```
+
+---
+
+**Q23: What are extension methods?**
+
+Add methods to existing types without modifying them.
+
+```csharp
+public static class StringExtensions
+{
+    public static bool IsNullOrEmpty(this string s)
+        => string.IsNullOrEmpty(s);
+
+    public static string Capitalize(this string s)
+        => string.IsNullOrEmpty(s) ? s : char.ToUpper(s[0]) + s[1..];
+
+    public static int WordCount(this string s)
+        => s.Split(' ', StringSplitOptions.RemoveEmptyEntries).Length;
+}
+
+string name = "asha";
+Console.WriteLine(name.IsNullOrEmpty());   // False
+Console.WriteLine(name.Capitalize());      // Asha
+Console.WriteLine("hello world".WordCount()); // 2
+
+// Three rules:
+// 1. Static class
+// 2. Static method
+// 3. First param has 'this' keyword
+```
+
+---
+
+**Q24: What is pattern matching?**
+
+Test a value's type, value, or shape — and extract data at the same time.
+
+```csharp
+// is pattern — type check + extract
+object obj = "hello";
+if (obj is string s)
+    Console.WriteLine(s.Length);   // 5
+
+// switch expression
+string Grade(int score) => score switch
+{
+    >= 90 => "A",
+    >= 80 => "B",
+    >= 70 => "C",
+    _     => "F"
+};
+
+// Property pattern
+string Describe(Order o) => o switch
+{
+    { Total: > 1000, Country: "IN" } => "Big Indian order",
+    { Total: > 500 }                 => "Large order",
+    _                                => "Normal order"
+};
+
+// Type pattern
+string Classify(object obj) => obj switch
+{
+    int n    => $"Integer: {n}",
+    string s => $"String: {s}",
+    null     => "Null",
+    _        => "Unknown"
+};
+```
+
+---
+
+**Q25: What is `IDisposable` and the `using` statement?**
+
+```csharp
+// Classes holding unmanaged resources implement IDisposable
+public class FileProcessor : IDisposable
+{
+    private StreamReader _reader;
+    private bool _disposed = false;
+
+    public FileProcessor(string path) => _reader = new StreamReader(path);
+
+    public string ReadLine() => _reader.ReadLine() ?? "";
+
+    public void Dispose()
+    {
+        if (!_disposed)
+        {
+            _reader.Dispose();   // release file handle
+            _disposed = true;
+        }
+    }
+}
+
+// using — automatically calls Dispose() even if exception occurs ✅
+using (var fp = new FileProcessor("data.txt"))
+{
+    Console.WriteLine(fp.ReadLine());
+}   // Dispose() called here ✅
+
+// Modern syntax (C# 8+)
+using var fp = new FileProcessor("data.txt");
+Console.WriteLine(fp.ReadLine());
+// Dispose() called at end of scope ✅
+```
+
+---
+
+## 🏛️ SECTION 4 — SOLID & Design Patterns
+
+---
+
+**Q26: Explain SOLID with a code example for each.**
+
+```csharp
+// S — Single Responsibility
+// ❌ One class doing too much
+public class UserManager { void Save() {} void SendEmail() {} void GenerateReport() {} }
+// ✅ Split into focused classes
+public class UserRepository  { void Save(User u) {} }
+public class UserEmailer     { void SendWelcome(User u) {} }
+public class UserReporter    { string Report(User u) => ""; }
+
+// O — Open/Closed
+public interface IDiscount   { decimal Apply(decimal price); }
+public class NoDiscount    : IDiscount { public decimal Apply(decimal p) => p; }
+public class TenPercentOff : IDiscount { public decimal Apply(decimal p) => p * 0.9m; }
+// Add new discounts without touching existing code ✅
+
+// L — Liskov Substitution
+public abstract class Shape  { public abstract double Area(); }
+public class Circle    : Shape { double r; public override double Area() => Math.PI * r * r; }
+public class Rectangle : Shape { double w, h; public override double Area() => w * h; }
+// Either can replace Shape without breaking callers ✅
+
+// I — Interface Segregation
+public interface IReadable  { string Read(); }
+public interface IWritable  { void Write(string s); }
+// Classes implement only what they use — not forced to implement both ✅
+
+// D — Dependency Inversion
+public interface IOrderRepo { Task SaveAsync(Order o); }
+public class OrderService   // depends on interface, not SqlDatabase
+{
+    private readonly IOrderRepo _repo;
+    public OrderService(IOrderRepo repo) => _repo = repo;
+}
+```
+
+---
+
+**Q27: What is the Repository pattern?**
+
+```csharp
+// Abstract data access — business logic doesn't know or care about the DB
+public interface IProductRepository
+{
+    Task<List<Product>> GetAllAsync();
+    Task<Product?> GetByIdAsync(int id);
+    Task SaveAsync(Product product);
+}
+
+// Real implementation
+public class SqlProductRepository : IProductRepository
+{
+    private readonly AppDbContext _context;
+    public SqlProductRepository(AppDbContext ctx) => _context = ctx;
+    public async Task<List<Product>> GetAllAsync() => await _context.Products.ToListAsync();
+    public async Task<Product?> GetByIdAsync(int id) => await _context.Products.FindAsync(id);
+    public async Task SaveAsync(Product p) { _context.Products.Add(p); await _context.SaveChangesAsync(); }
+}
+
+// Fake for tests — no database needed ✅
+public class FakeProductRepository : IProductRepository
+{
+    private List<Product> _data = new();
+    public Task<List<Product>> GetAllAsync() => Task.FromResult(_data);
+    public Task<Product?> GetByIdAsync(int id) => Task.FromResult(_data.FirstOrDefault(p => p.Id == id));
+    public Task SaveAsync(Product p) { _data.Add(p); return Task.CompletedTask; }
+}
+```
+
+---
+
+**Q28: What is Dependency Injection?**
+
+```csharp
+// ❌ Without DI — tightly coupled, can't test
+public class OrderService
+{
+    private SqlDatabase _db = new SqlDatabase();   // hard-coded dependency!
+}
+
+// ✅ With DI — loosely coupled, testable
+public class OrderService
+{
+    private readonly IOrderRepository _repo;
+    private readonly IEmailService    _email;
+
+    // Dependencies injected via constructor
+    public OrderService(IOrderRepository repo, IEmailService email)
+    {
+        _repo  = repo;
+        _email = email;
+    }
+}
+
+// Register in Program.cs
+builder.Services.AddScoped<IOrderRepository, SqlOrderRepository>();
+builder.Services.AddScoped<IEmailService, SmtpEmailService>();
+builder.Services.AddScoped<OrderService>();
+// Container creates and injects everything automatically ✅
+```
+
+---
+
+**Q29: What are the DI lifetimes?**
+
+```csharp
+// Singleton — ONE instance, entire app lifetime
+builder.Services.AddSingleton<IAppConfig, AppConfig>();
+// Same object returned every time, everywhere
+
+// Scoped — ONE instance per HTTP request
+builder.Services.AddScoped<IOrderService, OrderService>();
+// New object per request, shared within that request
+
+// Transient — NEW instance every time requested
+builder.Services.AddTransient<IEmailFormatter, HtmlEmailFormatter>();
+// Brand new object on every injection
+
+// 🚨 Never inject Scoped into Singleton — runtime exception!
+// Scoped would live longer than intended (outlive the request)
+```
+
+---
+
+## 🧪 SECTION 5 — Unit Testing
+
+---
+
+**Q30: What is unit testing and the AAA pattern?**
+
+```csharp
+// AAA = Arrange → Act → Assert
+[Fact]
+public void Add_TwoPositiveNumbers_ReturnsSum()
+{
+    // Arrange — set up everything needed
+    var calculator = new Calculator();
+
+    // Act — call the method being tested
+    int result = calculator.Add(3, 4);
+
+    // Assert — verify the result
+    Assert.Equal(7, result);
+    // or with FluentAssertions:
+    result.Should().Be(7);
+}
+
+// [Theory] — same test, different inputs
+[Theory]
+[InlineData(2, 3, 5)]
+[InlineData(0, 0, 0)]
+[InlineData(-1, 1, 0)]
+public void Add_VariousInputs_ReturnsCorrectSum(int a, int b, int expected)
+{
+    var calculator = new Calculator();
+    calculator.Add(a, b).Should().Be(expected);
+}
+```
+
+---
+
+**Q31: How do you use Moq to mock dependencies?**
+
+```csharp
+public interface IEmailService
+{
+    Task SendAsync(string to, string subject);
+}
+
+[Fact]
+public async Task Register_ValidUser_SendsWelcomeEmail()
+{
+    // Arrange
+    var mockEmail = new Mock<IEmailService>();
+    var service   = new UserService(mockEmail.Object);
+    var user      = new User { Email = "asha@test.com" };
+
+    // Setup — define what the mock returns
+    mockEmail.Setup(e => e.SendAsync(It.IsAny<string>(), It.IsAny<string>()))
+             .Returns(Task.CompletedTask);
+
+    // Act
+    await service.RegisterAsync(user);
+
+    // Assert — verify it was called with right arguments
+    mockEmail.Verify(e =>
+        e.SendAsync("asha@test.com", "Welcome!"),
+        Times.Once);
+}
+```
+
+---
+
+## 🌐 SECTION 6 — ASP.NET Core & EF Core
+
+---
+
+**Q32: What is the difference between `Ok()`, `NotFound()`, `CreatedAtAction()`?**
+
+```csharp
+[HttpGet("{id}")]
+public ActionResult<Product> GetById(int id)
+{
+    var product = _repo.GetById(id);
+    if (product is null)
+        return NotFound();    // 404 — resource doesn't exist
+    return Ok(product);       // 200 — success with data
+}
+
+[HttpPost]
+public ActionResult<Product> Create(Product product)
+{
+    _repo.Save(product);
+    return CreatedAtAction(      // 201 — created, with Location header
+        nameof(GetById),
+        new { id = product.Id },
+        product);
+}
+
+[HttpDelete("{id}")]
+public IActionResult Delete(int id)
+{
+    _repo.Delete(id);
+    return NoContent();    // 204 — success, no body
+}
+```
+
+---
+
+**Q33: What is middleware in ASP.NET Core?**
+
+```csharp
+// Middleware processes every request in ORDER
+var app = builder.Build();
+
+app.UseHttpsRedirection();   // 1st — redirect HTTP to HTTPS
+app.UseAuthentication();     // 2nd — who are you?
+app.UseAuthorization();      // 3rd — what can you do?
+app.MapControllers();        // last — route to controllers
+
+// Custom middleware — timing every request
+app.Use(async (context, next) =>
+{
+    var watch = Stopwatch.StartNew();
+    await next();   // call next middleware in pipeline
+    watch.Stop();
+    Console.WriteLine($"{context.Request.Method} {context.Request.Path} → {watch.ElapsedMilliseconds}ms");
+});
+```
+
+---
+
+**Q34: What is the N+1 problem in EF Core and how do you fix it?**
+
+```csharp
+// ❌ N+1 — one DB query per order (100 orders = 101 queries!)
+var orders = await context.Orders.ToListAsync();
+foreach (var order in orders)
+{
+    // Each iteration fires a NEW query to the database
+    var items = await context.OrderItems
+        .Where(i => i.OrderId == order.Id)
+        .ToListAsync();
+}
+
+// ✅ Fix — use Include() to load everything in ONE query
+var orders = await context.Orders
+    .Include(o => o.Items)          // JOIN in one query ✅
+        .ThenInclude(i => i.Product)
+    .ToListAsync();
+// One query total — no matter how many orders
+```
+
+---
+
+**Q35: What is a DbContext and how do you register it?**
+
+```csharp
+// DbContext — gateway to the database
+public class AppDbContext : DbContext
+{
+    public DbSet<Product> Products => Set<Product>();
+    public DbSet<Order>   Orders   => Set<Order>();
+
+    public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
+}
+
+// Register in Program.cs
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlServer(
+        builder.Configuration.GetConnectionString("Default")));
+
+// Use via injection
+public class ProductRepository
+{
+    private readonly AppDbContext _context;
+    public ProductRepository(AppDbContext context) => _context = context;
+
+    public async Task<List<Product>> GetAllAsync()
+        => await _context.Products.ToListAsync();
+}
+```
+
+---
+
+## 🚀 SECTION 7 — Quick-Fire Round
+
+---
+
+**Q36: What is `null` coalescing `??` vs `??=`?**
+
+```csharp
+string? name = null;
+
+// ?? — use right side if left is null
+string display = name ?? "Anonymous";   // "Anonymous"
+
+// ??= — assign only if currently null
+name ??= "Default";
+Console.WriteLine(name);   // "Default"
+name ??= "Other";
+Console.WriteLine(name);   // "Default" — already had a value, not replaced
+```
+
+---
+
+**Q37: What is the difference between `is` and `as`?**
+
+```csharp
+object obj = "hello";
+
+// 'is' — returns bool, can extract variable
+if (obj is string s)
+    Console.WriteLine(s.Length);   // 5 ✅
+
+// 'as' — returns null if cast fails (no exception)
+string? str = obj as string;
+Console.WriteLine(str?.Length);    // 5 ✅
+
+object num = 42;
+string? fail = num as string;
+Console.WriteLine(fail);           // null — no exception ✅
+// vs explicit cast: (string)num   ❌ throws InvalidCastException
+```
+
+---
+
+**Q38: What is `sealed` class?**
+
+```csharp
+// sealed — no one can inherit from this class
+public sealed class Singleton
+{
+    private static readonly Singleton _instance = new();
+    public static Singleton Instance => _instance;
+    private Singleton() {}
+}
+
+// ❌ Compile error — can't inherit sealed
+public class HackedSingleton : Singleton { }
+
+// Also use on methods — prevent further overriding
+public class Base    { public virtual  void Do() {} }
+public class Middle  { public sealed override void Do() {} }  // no more overriding!
+public class Child : Middle { public override void Do() {} }  // ❌ compile error
+```
+
+---
+
+**Q39: What is `static` class and method?**
+
+```csharp
+// Static class — can't be instantiated, one copy in memory
+public static class MathHelper
+{
+    public static double CircleArea(double radius) => Math.PI * radius * radius;
+    public static bool IsPrime(int n)
+    {
+        if (n < 2) return false;
+        for (int i = 2; i <= Math.Sqrt(n); i++)
+            if (n % i == 0) return false;
+        return true;
+    }
+}
+
+// Call directly on the class — no 'new' needed
+double area = MathHelper.CircleArea(5);
+bool prime  = MathHelper.IsPrime(7);   // true
+
+// Static member — shared across ALL instances
+public class Counter
+{
+    public static int Total = 0;   // shared
+    public int Id;                 // per instance
+
+    public Counter() { Total++; Id = Total; }
+}
+var c1 = new Counter();   // Total = 1, Id = 1
+var c2 = new Counter();   // Total = 2, Id = 2
+Console.WriteLine(Counter.Total);   // 2
+```
+
+---
+
+**Q40: What is `yield return`?**
+
+```csharp
+// yield return — produces values one at a time (lazy evaluation)
+IEnumerable<int> GetEvens(int max)
+{
+    for (int i = 0; i <= max; i += 2)
+        yield return i;   // pause here, return value, resume next call
+}
+
+foreach (int n in GetEvens(10))
+    Console.Write(n + " ");   // 0 2 4 6 8 10
+
+// Benefit: infinite sequences without loading everything into memory
+IEnumerable<int> InfiniteCounter()
+{
+    int i = 0;
+    while (true) yield return i++;
+}
+
+var first10 = InfiniteCounter().Take(10).ToList();   // only calculates 10 values ✅
+```
+
+---
+
+## 📋 QUICK REFERENCE CHEAT SHEET
+
+| Concept | Key point |
+|---|---|
+| `int` vs `int?` | `int?` can be null |
+| `==` vs `.Equals()` | `==` = reference for objects; `.Equals()` = value |
+| `const` vs `readonly` | `const` = compile time; `readonly` = runtime (constructor) |
+| `class` vs `struct` | `class` = reference (shared); `struct` = value (copied) |
+| `abstract` vs `interface` | `abstract` = partial impl; `interface` = pure contract |
+| Overload vs Override | Overload = same name, diff params; Override = replace parent |
+| `async`/`await` | Releases thread while waiting — doesn't create new thread |
+| `Task.WhenAll` vs `WhenAny` | All = wait for all; Any = wait for first |
+| `IDisposable` + `using` | Auto cleanup of unmanaged resources |
+| LINQ | Query collections with `.Where()`, `.Select()`, `.OrderBy()` |
+| Repository pattern | Abstract data access behind an interface |
+| DI lifetimes | Singleton (app) · Scoped (request) · Transient (every time) |
+| N+1 problem | Fix with `.Include()` in EF Core |
+| `??` vs `??=` | `??` = default if null; `??=` = assign if null |
+| `is` vs `as` | `is` = bool check; `as` = null if fails (no exception) |
+
+---
+
+## 🚀 Final Tips for Interviews
+
+✅ **Code out loud** — explain what you're doing as you type  
+✅ **Start simple** — get a working solution, then optimize  
+✅ **Ask clarifying questions** — shows senior thinking  
+✅ **Talk about trade-offs** — "I used X because Y, but Z would work too"  
+✅ **Know your own repo** — every example here is fair game  
+✅ **async/await** — practice explaining it without looking at notes  
+✅ **SOLID + DI** — interviewers love these, know them cold  
+✅ **Don't panic on unknowns** — "I haven't used that but here's how I'd approach it" ✅  
